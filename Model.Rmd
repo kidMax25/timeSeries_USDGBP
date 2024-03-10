@@ -1,0 +1,25 @@
+# Load Packages
+
+```{r}
+if (!require("priceR")){
+  install.packages("priceR")
+} else (
+  require("priceR")
+)
+```
+
+# Load Data from priceR
+
+```{r}
+myCurrency <- list(from = "GBP", to = "USD")
+startDate <- "2000-01-01"
+endDate <- "2023-12-31"
+
+#myDatahistorical_exchange_rates(from = myCurrency$from, to = myCurrency$to, start_date = startDate, end_date = endDate)
+```
+
+# Data - Processing
+
+```{r}
+myData <- myData |> rena
+```
