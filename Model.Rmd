@@ -1,11 +1,19 @@
 # Load Packages
 
 ```{r}
-if (!require("priceR")){
-  install.packages("priceR")
-} else (
-  require("priceR")
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  "priceR",
+  "tidyverse",
+  "highcharter",
+  "tidymodels",
+  "prophet",
+  "forecast"
 )
+
+Sys.setenv("EXCHANGERATEHOST_ACCESS_KEY" = "c7f0a60ab213aec302d800c4cc3b66fa")
+
 ```
 
 # Load Data from priceR
@@ -15,11 +23,42 @@ myCurrency <- list(from = "GBP", to = "USD")
 startDate <- "2000-01-01"
 endDate <- "2023-12-31"
 
-#myDatahistorical_exchange_rates(from = myCurrency$from, to = myCurrency$to, start_date = startDate, end_date = endDate)
+myData <- historical_exchange_rates(from = myCurrency$from, to = myCurrency$to, start_date = startDate, end_date = endDate)
 ```
 
 # Data - Processing
 
 ```{r}
-myData <- myData |> rena
+myData <- myData |> rename_all(~c("Date", "Rate")) |> 
+  mutate_at(vars("Date"), ~as.Date(.,format = "%Y-%m-%d"))
+```
+
+# Data - Visualization
+
+```{r}
+myData |> hchart('line', hcaes(x = Date, y = Rate)) |> 
+  hc_title(text = "GBP - USD from 2001 to 2023")
+```
+
+# Test and Train Splits
+
+```{r}
+set.seed(1234)
+trainData <- myData |> sample_frac(0.7)
+testData <- anti_join(myData,trainData)
+```
+
+# Box-Cox Transform
+
+```{r}
+lam <- BoxCox.lambda(myData$Rate, method = "loglik")
+myData$y <- BoxCox(myData$Rate, lam)
+
+myData.m <- reshape2::melt(myData, measure.vars = c("Rate", "y"))
+```
+
+# Prophet
+
+```{r}
+
 ```
